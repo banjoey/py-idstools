@@ -685,10 +685,10 @@ def main():
     enable_matchers = []
     modify_filters = []
 
-    if args.disable and os.path.exists(args.disable):
-        disable_matchers += load_matchers(args.disable)
     if args.enable and os.path.exists(args.enable):
         enable_matchers += load_matchers(args.enable)
+    if args.disable and os.path.exists(args.disable):
+        disable_matchers += load_matchers(args.disable)
     if args.modify and os.path.exists(args.modify):
         modify_filters += load_filters(args.modify)
 
