@@ -711,22 +711,24 @@ def main():
     modify_count = 0
 
     # List of rules disabled by user. Used for counting, and to log
-    # rules that are re-enabled to meeto flowbit requirements.
+    # rules that are re-enabled to meet flowbit requirements.
     disabled_rules = []
 
     for key, rule in rulemap.items():
-
-        for matcher in disable_matchers:
-            if rule.enabled and matcher.match(rule):
-                logger.debug("Disabling: %s" % (rule.brief()))
-                rule.enabled = False
-                disabled_rules.append(rule)
 
         for matcher in enable_matchers:
             if not rule.enabled and matcher.match(rule):
                 logger.debug("Enabling: %s" % (rule.brief()))
                 rule.enabled = True
                 enable_count += 1
+
+        for matcher in disable_matchers:
+            if rule.enabled and matcher.match(rule):
+                logger.debug("Disabling: %s" % (rule.brief()))
+                if rule.enabled and (enable_count > 0):
+                    enable_count -= 1
+                rule.enabled = False
+                disabled_rules.append(rule)
 
         # Unlike enable and disable, modify returns a new instance of
         # the rule.
@@ -735,8 +737,8 @@ def main():
                 rulemap[rule.id] = filter.filter(rule)
                 modify_count += 1
 
+    logger.info("Enabled %d rules. This count may not be accurate." % (enable_count))
     logger.info("Disabled %d rules." % (len(disabled_rules)))
-    logger.info("Enabled %d rules." % (enable_count))
     logger.info("Modified %d rules." % (modify_count))
 
     # Fixup flowbits.
